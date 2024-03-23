@@ -102,7 +102,7 @@ const handleRequest = frames(async (ctx) => {
           style={{ fontFamily: "Bitcell", fontSize: 24, backgroundImage: `url(${imageUrl})` }}
           tw="flex flex-col bg-black text-white w-full h-full"
         >
-          <p tw="p-2 bg-gray-800 bg-opacity-75">{responseText}</p>
+          <div tw="p-2 bg-gray-800 bg-opacity-75">{responseText}</div>
         </div>
       ),
       imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
@@ -122,13 +122,13 @@ const handleRequest = frames(async (ctx) => {
   return {
     image: (
       <div
-        style={{ fontFamily: "Bitcell", fontSize: 120 }}
+        style={{ fontFamily: "Bitcell", fontSize: 60, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
-        AI Quest
+        <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div>
       </div>
     ),
-    imageOptions: defaultImageOptions,
+    imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
     buttons: [
       <Button action="post" target={{ query: { sessionKey: newSessionKey } }}>
         Start
