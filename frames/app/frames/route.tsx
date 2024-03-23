@@ -2,9 +2,14 @@
 import { Button } from "frames.js/next";
 import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
+import OpenAI from "openai";
 
 const frames = createFrames({
   basePath: "/frames",
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const handleRequest = frames(async (ctx) => {
@@ -12,10 +17,16 @@ const handleRequest = frames(async (ctx) => {
   console.log("sessionKey", sessionKey);
   console.log("process.env.OPENAI_API_KEY", process.env.OPENAI_API_KEY);
   console.log("ctx?.message?.inputText", ctx?.message?.inputText);
+  let text = "";
   if (sessionKey) {
     await kv.set(sessionKey, "test");
     const sessionData = await kv.get("test");
     console.log("sessionData", sessionData);
+    const chatCompletion = await openai.chat.completions.create({
+      messages: [{ role: "system", content: "You are a helpful assistant." }],
+      model: "gpt-3.5-turbo",
+    });
+    text = chatCompletion.choices[0]?.message?.content as string;
   }
 
   const isEnded = false;
@@ -61,7 +72,7 @@ const handleRequest = frames(async (ctx) => {
 
   if (ctx.pressedButton && !isEnded) {
     return {
-      image: <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">Ongoing</div>,
+      image: <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">{text}</div>,
       imageOptions: {
         aspectRatio: "1.91:1",
       },
