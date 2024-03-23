@@ -68,7 +68,7 @@ const handleRequest = frames(async (ctx) => {
     });
   }
 
-  let videoUrl = "";
+  let videoUrl = "test";
   if (action === "checkVideo") {
     const sessionData: any = await kv.get(sessionKey);
     if (sessionData && sessionData.videoUrl) {
@@ -105,7 +105,7 @@ const handleRequest = frames(async (ctx) => {
       ),
       imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
       buttons: [
-        <Button action="post" target={{ query: { sessionKey, action: "mint", index } }}>
+        <Button action="tx" target="/txdata" post_url="/frames">
           Mint NFT
         </Button>,
       ],
