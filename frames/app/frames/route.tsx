@@ -6,7 +6,7 @@ import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 
 const frames = createFrames({
-  basePath: "/frames",
+  basePath: "/",
 });
 
 const bitcell = fs.readFileSync(path.join(process.cwd(), "/public/bitcell_memesbruh03.ttf"));
@@ -105,7 +105,7 @@ const handleRequest = frames(async (ctx) => {
       ),
       imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
       buttons: [
-        <Button action="tx" target="/txdata" post_url="/frames">
+        <Button action="tx" target={{ pathname: "/txdata", query: { videoUrl } }} post_url="/frames">
           Mint NFT
         </Button>,
       ],

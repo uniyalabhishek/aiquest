@@ -4,18 +4,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { Abi, encodeFunctionData } from "viem";
 import { aiQuestNFTAbi } from "./contracts/ai-quest-nft";
 
+const { URL } = require("url");
+
 const AIQuestNFTAddress = "0x73e5d195b5cf7eb46de86901ad941986e74921ca";
 
 export async function POST(req: NextRequest): Promise<NextResponse<TransactionTargetResponse>> {
-  console.log("mint");
+  const url = new URL(req.url);
+  console.log("videoUrl:", url.searchParams.get("videoUrl"));
+  // const json = await req.json();
 
-  const json = await req.json();
+  // const frameMessage = await getFrameMessage(json);
 
-  const frameMessage = await getFrameMessage(json);
-
-  if (!frameMessage) {
-    throw new Error("No frame message");
-  }
+  // if (!frameMessage) {
+  //   throw new Error("No frame message");
+  // }
 
   const calldata = encodeFunctionData({
     abi: aiQuestNFTAbi,
