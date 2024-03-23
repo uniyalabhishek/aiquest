@@ -98,9 +98,6 @@ const handleRequest = frames(async (ctx) => {
         <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
           View on block explorer
         </Button>,
-        <Button action="post" target={{ query: { action: "start", index: 1 } }}>
-          Start over
-        </Button>,
       ],
       headers: defaultHeaders,
     };
