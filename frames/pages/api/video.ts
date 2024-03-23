@@ -7,6 +7,7 @@ const fs = require("fs");
 const util = require("util");
 const os = require("os");
 const path = require("path");
+const stream = require("stream");
 const writeFileAsync = util.promisify(fs.writeFile);
 
 const duration = 2;
@@ -31,12 +32,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(tempFilePath);
     localImages.push(tempFilePath);
   }
+  const allChunks: Buffer[] = [];
+  const bufferStream = new stream.PassThrough();
+  bufferStream.on("data", (chunk: Buffer) => {
+    allChunks.push(chunk);
+  });
   const command = ffmpeg();
   localImages.forEach((image: string) => {
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
   });
-  const outputPath = path.join(tempDir, `${time}-video.png`);
-  console.log(outputPath);
+  const outputPath = path.join(tempDir, `${time}-video.mp4`);
   command
     .fps(1)
     .on("start", function (commandLine: any) {
@@ -51,7 +56,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .on("end", async function () {
       console.log("Video has been created");
     })
-    .mergeToFile(`${time}-video.mp4`, "./temp");
-  console.log("ok");
+    .save(outputPath);
   res.status(500).json({ ok: "ok" });
 }
