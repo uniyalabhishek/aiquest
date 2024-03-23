@@ -16,6 +16,9 @@ const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 import { Livepeer } from "livepeer";
 const livepeer = new Livepeer({ apiKey: process.env.LIVEPEER_API_KEY });
 
+import { NFTStorage, File, Blob } from "nft.storage";
+const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN || "" });
+
 const duration = 2;
 const images = ["https://placehold.jp/500x500.png", "https://placehold.jp/500x500.png"];
 
@@ -60,12 +63,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .on("end", async function () {
         console.log("Video has been created");
         const buffer = await readFileAsync(outputPath);
-        const base64url = buffer.toString("base64url");
-        const url = `${process.env.NEXT_PUBLIC_HOST}/api/proxy?base64url=${base64url}`;
-        const res = await livepeer.asset.createViaURL({ name: "video", url }).catch((error) => {
-          console.error("Error requesting asset upload:", error);
-        });
-        console.log(res);
+        const file = new File([buffer], "video.mp4", { type: "video/mp4" });
+        const cid = await client.storeDirectory([file]);
+        console.log(cid);
+        const res = await livepeer.asset
+          .createViaURL({ name: "video", url: `ipfs://${cid}/video.mp4` })
+          .catch((error) => {
+            console.error("Error requesting asset upload:", error);
+          });
         fs.unlink(outputPath, (err: Error) => {
           if (err) console.error("Error removing temporary file:", err);
         });
