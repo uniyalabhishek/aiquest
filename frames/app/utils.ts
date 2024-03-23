@@ -13,5 +13,5 @@ export function currentURL(pathname: string): URL {
 }
 
 export function vercelURL() {
-  return process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined;
+  return process.env.NEXT_PUBLIC_HOST ? process.env.NEXT_PUBLIC_HOST : undefined;
 }
