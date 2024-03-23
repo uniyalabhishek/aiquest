@@ -59,7 +59,7 @@ const handleRequest = frames(async (ctx) => {
   }
 
   if (action === "processVideo") {
-    fetch(new URL("/video", process.env.NEXT_PUBLIC_HOST).toString(), {
+    fetch(new URL("/api/video", process.env.NEXT_PUBLIC_HOST).toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
