@@ -630,7 +630,9 @@ export const storageRegistryABI = [
       { internalType: "uint256", name: "units", type: "uint256" },
     ],
     name: "rent",
-    outputs: [{ internalType: "uint256", name: "overpayment", type: "uint256" }],
+    outputs: [
+      { internalType: "uint256", name: "overpayment", type: "uint256" },
+    ],
     stateMutability: "payable",
     type: "function",
   },
