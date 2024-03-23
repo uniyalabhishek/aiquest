@@ -6,7 +6,7 @@ import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 
 const frames = createFrames({
-  basePath: "/",
+  basePath: "/frames",
 });
 
 const bitcell = fs.readFileSync(path.join(process.cwd(), "/public/bitcell_memesbruh03.ttf"));
@@ -20,6 +20,8 @@ const defaultFonts = [
 ];
 const defaultAspectRatio = "1:1";
 const defaultImageOptions = {
+  width: "256",
+  height: "256",
   aspectRatio: defaultAspectRatio,
   fonts: defaultFonts,
 } as any;
@@ -30,6 +32,7 @@ const defaultHeaders = {
 const handleRequest = frames(async (ctx) => {
   const action = ctx.searchParams.action || "";
   let sessionKey = ctx.searchParams.sessionKey || "";
+
   if (!sessionKey && action == "start") {
     const newSessionKey = crypto.randomUUID();
     console.log("newSessionKey", newSessionKey);
@@ -75,13 +78,15 @@ const handleRequest = frames(async (ctx) => {
       videoUrl = sessionData.videoUrl;
     }
   }
-  console.log("videoUrl", videoUrl);
 
   if (ctx.message?.transactionId) {
     return {
       image: (
-        <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center flex">
-          Transaction submitted! {ctx.message.transactionId}
+        <div
+          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          tw={`flex bg-black text-white w-full h-full justify-center items-center`}
+        >
+          <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Transaction submitted!</div>
         </div>
       ),
       imageOptions: defaultImageOptions,
@@ -90,6 +95,7 @@ const handleRequest = frames(async (ctx) => {
           View on block explorer
         </Button>,
       ],
+      headers: defaultHeaders,
     };
   }
 
@@ -103,9 +109,9 @@ const handleRequest = frames(async (ctx) => {
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Video created</div>
         </div>
       ),
-      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      imageOptions: defaultImageOptions,
       buttons: [
-        <Button action="tx" target={{ pathname: "/txdata", query: { videoUrl } }} post_url="/frames">
+        <Button action="tx" target={{ pathname: "../txdata", query: { sessionKey } }} post_url="/">
           Mint NFT
         </Button>,
       ],
@@ -123,7 +129,7 @@ const handleRequest = frames(async (ctx) => {
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
         </div>
       ),
-      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      imageOptions: defaultImageOptions,
       buttons: [
         <Button action="post" target={{ query: { sessionKey, action: "checkVideo" } }}>
           Check status
@@ -143,7 +149,7 @@ const handleRequest = frames(async (ctx) => {
           <div tw="p-2 bg-gray-800 bg-opacity-75">{responseText}</div>
         </div>
       ),
-      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      imageOptions: defaultImageOptions,
       textInput: "What do you do?",
       buttons: [
         <Button action="post" target={{ query: { sessionKey, action: "processVideo" } }}>
@@ -167,7 +173,7 @@ const handleRequest = frames(async (ctx) => {
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
         </div>
       ),
-      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      imageOptions: defaultImageOptions,
       buttons: [
         <Button action="post" target={{ query: { sessionKey, action: "checkAI", index } }}>
           Check status
@@ -183,10 +189,11 @@ const handleRequest = frames(async (ctx) => {
         style={{ fontFamily: "Bitcell", fontSize: 40, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
+        {/* <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div> */}
         <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div>
       </div>
     ),
-    imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+    imageOptions: defaultImageOptions,
     buttons: [
       <Button action="post" target={{ query: { action: "start", index: 1 } }}>
         Start
