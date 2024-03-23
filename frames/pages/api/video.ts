@@ -63,11 +63,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .on("end", async function () {
         console.log("Video has been created");
         const buffer = await readFileAsync(outputPath);
-        const file = new File([buffer], "video.mp4", { type: "video/mp4" });
-        const cid = await client.storeDirectory([file]);
+        const blob = new Blob([buffer], { type: "video/mp4" });
+        const cid = await client.storeBlob(blob);
         console.log(cid);
-        const res = await livepeer.asset
-          .createViaURL({ name: "video", url: `ipfs://${cid}/video.mp4` })
+        await livepeer.asset
+          .createViaURL({ name: "video", url: `ipfs://${cid}`, storage: { ipfs: true } })
           .catch((error) => {
             console.error("Error requesting asset upload:", error);
           });
