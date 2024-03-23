@@ -31,71 +31,53 @@ const defaultImageOptions = {
 } as any;
 
 const handleRequest = frames(async (ctx) => {
+  console.log(ctx);
+
+  const action = ctx.searchParams.action || "";
   const sessionKey = ctx.searchParams.sessionKey || "";
-  console.log("sessionKey", sessionKey);
-  console.log("process.env.OPENAI_API_KEY", process.env.OPENAI_API_KEY);
-  console.log("ctx?.message?.inputText", ctx?.message?.inputText);
+  const index = Number(ctx.searchParams.index || 0);
   const inputText = ctx?.message?.inputText;
-  let responseText = "";
+  if (sessionKey && action === "processAi") {
+    fetch(new URL("/ai", process.env.NEXT_PUBLIC_HOST).toString(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionKey, inputText }),
+    });
+  }
+
   let imageUrl = "";
-  if (sessionKey) {
-    const messages: any = [];
-    const sessionData = await kv.get(sessionKey);
-    if (!sessionData) {
-      messages.push({ role: "system", content: originalPrompt });
-    } else {
-      messages.push(...(sessionData as any));
-    }
-    messages.push({ role: "user", content: inputText });
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: messages,
-    });
-    responseText = chatCompletion.choices[0]?.message?.content as string;
-    console.log("responseText", responseText);
-    const imageCompletion = await openai.images.generate({
-      model: "dall-e-2",
-      prompt: `pixel art, detailed senary, dark fantasy, rpg, ${responseText}`,
-      size: "256x256",
-      n: 1,
-    });
-    imageUrl = imageCompletion.data[0]?.url as string;
-    console.log("imageUrl", imageUrl);
-    messages.push({ role: "assistant", content: responseText });
-    await kv.set(sessionKey, JSON.stringify(messages));
+  let responseText = "";
+  if (sessionKey && action === "checkAI") {
+    console.log(index);
+    // const sessionData: any = await kv.get(sessionKey);
+    // console.log(sessionData);
+    // if (sessionData.imageUrls && sessionData.imageUrls.length == index) {
+    //   imageUrl = sessionData.imageUrls[index - 1];
+    //   responseText = sessionData.messages[index * 2].content;
+    // }
   }
 
-  const isEnded = false;
+  // const isEnded = false;
 
-  if (ctx.message?.transactionId) {
-    return {
-      image: (
-        <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center flex">
-          Transaction submitted! {ctx.message.transactionId}
-        </div>
-      ),
-      imageOptions: defaultImageOptions,
-      buttons: [
-        <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
-          View on block explorer
-        </Button>,
-      ],
-    };
-  }
+  // if (ctx.message?.transactionId) {
+  //   return {
+  //     image: (
+  //       <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center flex">
+  //         Transaction submitted! {ctx.message.transactionId}
+  //       </div>
+  //     ),
+  //     imageOptions: defaultImageOptions,
+  //     buttons: [
+  //       <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
+  //         View on block explorer
+  //       </Button>,
+  //     ],
+  //   };
+  // }
 
-  if (ctx.pressedButton && isEnded) {
-    return {
-      image: (
-        <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center">
-          Generated
-        </div>
-      ),
-      imageOptions: defaultImageOptions,
-      buttons: [<Button action="post">Mint</Button>],
-    };
-  }
-
-  if (ctx.pressedButton && !isEnded) {
+  if (imageUrl && responseText) {
     return {
       image: (
         <div
@@ -108,7 +90,7 @@ const handleRequest = frames(async (ctx) => {
       imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
       textInput: "What do you do?",
       buttons: [
-        <Button action="post" target={{ query: { sessionKey } }}>
+        <Button action="post" target={{ query: { sessionKey, action: "processAi", index: index + 1 } }}>
           Next
         </Button>,
         <Button action="post">End</Button>,
@@ -116,13 +98,39 @@ const handleRequest = frames(async (ctx) => {
     };
   }
 
-  const newSessionKey = crypto.randomUUID();
+  if (sessionKey) {
+    return {
+      image: (
+        <div
+          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          tw={`flex bg-black text-white w-full h-full justify-center items-center`}
+        >
+          <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
+        </div>
+      ),
+      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      buttons: [
+        <Button action="post" target={{ query: { sessionKey: sessionKey, action: "checkAI", index } }}>
+          Check status
+        </Button>,
+      ],
+    };
+  }
+
+  const response = await fetch(new URL("/session", process.env.NEXT_PUBLIC_HOST).toString(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ time: new Date() }),
+  });
+  const { newSessionKey } = await response.json();
   console.log("newSessionKey", newSessionKey);
 
   return {
     image: (
       <div
-        style={{ fontFamily: "Bitcell", fontSize: 60, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+        style={{ fontFamily: "Bitcell", fontSize: 40, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
         <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div>
@@ -130,7 +138,7 @@ const handleRequest = frames(async (ctx) => {
     ),
     imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
     buttons: [
-      <Button action="post" target={{ query: { sessionKey: newSessionKey } }}>
+      <Button action="post" target={{ query: { sessionKey: newSessionKey, action: "processAi", index: index + 1 } }}>
         Start
       </Button>,
     ],
