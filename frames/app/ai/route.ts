@@ -11,7 +11,6 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const sessionKey = body.sessionKey;
-  console.log("sessionKey", sessionKey);
   const inputText = body.inputText;
   const messages: any = [];
   const imageUrls: any = [];
@@ -31,11 +30,12 @@ export async function POST(req: NextRequest) {
   console.log("responseText", responseText);
   const imageCompletion = await openai.images.generate({
     model: "dall-e-2",
-    prompt: `pixel art, detailed senary, dark fantasy, rpg, ${responseText}`,
+    prompt: `pixel art, detailed senary, dark fantasy, rpg, occupies the majority of the image's space, ${responseText}`,
     size: "256x256",
     n: 1,
   });
   const imageUrl = imageCompletion.data[0]?.url as string;
+  console.log(imageUrl);
   messages.push({ role: "assistant", content: responseText });
   imageUrls.push(imageUrl);
   const data = { messages, imageUrls };
