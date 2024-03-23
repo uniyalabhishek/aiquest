@@ -2,6 +2,7 @@
 import fs from "fs";
 import path from "path";
 import { Button } from "frames.js/next";
+import { FrameImage } from "frames.js/next/server";
 import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 import OpenAI from "openai";
@@ -24,7 +25,7 @@ const fonts = [
     style: "normal",
   },
 ];
-const aspectRatio = "1.91:1";
+const aspectRatio = "1:1";
 const imageOptions = {
   aspectRatio,
   fonts,
@@ -39,6 +40,7 @@ const handleRequest = frames(async (ctx) => {
   console.log("ctx?.message?.inputText", ctx?.message?.inputText);
   const inputText = ctx?.message?.inputText;
   let responseText = "";
+  let imageUrl = "";
   if (sessionKey) {
     const messages: any = [];
     const sessionData = await kv.get(sessionKey);
@@ -49,10 +51,19 @@ const handleRequest = frames(async (ctx) => {
     }
     messages.push({ role: "user", content: inputText });
     const chatCompletion = await openai.chat.completions.create({
-      messages: messages,
       model: "gpt-3.5-turbo",
+      messages: messages,
     });
     responseText = chatCompletion.choices[0]?.message?.content as string;
+    console.log("responseText", responseText);
+    const imageCompletion = await openai.images.generate({
+      model: "dall-e-2",
+      prompt: `pixel art, detailed senary, dark fantasy, rpg, ${responseText}`,
+      size: "256x256",
+      n: 1,
+    });
+    imageUrl = imageCompletion.data[0]?.url as string;
+    console.log("imageUrl", imageUrl);
     messages.push({ role: "assistant", content: responseText });
     await kv.set(sessionKey, JSON.stringify(messages));
   }
@@ -103,11 +114,27 @@ const handleRequest = frames(async (ctx) => {
   if (ctx.pressedButton && !isEnded) {
     return {
       image: (
-        <div style={{ fontFamily: "Bitcell", fontSize: 60 }} tw="flex bg-black text-white w-full h-full">
-          <p tw="px-8">{responseText}</p>
+        <div
+          style={{ fontFamily: "Bitcell", fontSize: 24, backgroundImage: `url(${imageUrl})` }}
+          tw="flex flex-col bg-black text-white w-full h-full"
+        >
+          <p tw="p-2 bg-gray-800 bg-opacity-75 mt-[-0px]">{responseText}</p>
         </div>
       ),
-      imageOptions,
+      imageOptions: {
+        width: "256",
+        height: "256",
+        aspectRatio: "1:1",
+        fonts: [
+          {
+            name: "Bitcell",
+            data: bitcell,
+            weight: 400,
+            style: "normal",
+          },
+        ],
+        // backgroundImage: imageUrl,
+      },
       textInput: "What do you do?",
       buttons: [
         <Button action="post" target={{ query: { sessionKey } }}>

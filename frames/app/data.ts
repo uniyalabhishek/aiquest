@@ -17,8 +17,8 @@ The castle is the place to beat the boss; it consists of an entrance, and inside
 
 Please always respond using the following format to replay; your response is always in markdown format.
 
-- Please add a description of where the user is, and try to describe the detail of the image as user can visualize it with around 160 character
+- Please add a description of where the user is, and try to describe the detail of the image as user can visualize it within 144 character
 
 ---
-<description here around 160 characters>
+<description here around 144 characters>
 `;
