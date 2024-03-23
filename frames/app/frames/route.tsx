@@ -83,7 +83,11 @@ const handleRequest = frames(async (ctx) => {
     return {
       image: (
         <div
-          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          style={{
+            fontFamily: "Bitcell",
+            fontSize: 20,
+            backgroundImage: `url(${process.env.NEXT_PUBLIC_HOST}/image.png)`,
+          }}
           tw={`flex bg-black text-white w-full h-full justify-center items-center`}
         >
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Transaction submitted!</div>
@@ -126,7 +130,11 @@ const handleRequest = frames(async (ctx) => {
     return {
       image: (
         <div
-          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          style={{
+            fontFamily: "Bitcell",
+            fontSize: 20,
+            backgroundImage: `url(${process.env.NEXT_PUBLIC_HOST}/image.png)`,
+          }}
           tw={`flex bg-black text-white w-full h-full justify-center items-center`}
         >
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
@@ -170,7 +178,11 @@ const handleRequest = frames(async (ctx) => {
     return {
       image: (
         <div
-          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          style={{
+            fontFamily: "Bitcell",
+            fontSize: 20,
+            backgroundImage: `url(${process.env.NEXT_PUBLIC_HOST}/image.png)`,
+          }}
           tw={`flex bg-black text-white w-full h-full justify-center items-center`}
         >
           <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
@@ -189,7 +201,11 @@ const handleRequest = frames(async (ctx) => {
   return {
     image: (
       <div
-        style={{ fontFamily: "Bitcell", fontSize: 40, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+        style={{
+          fontFamily: "Bitcell",
+          fontSize: 40,
+          backgroundImage: `url(${process.env.NEXT_PUBLIC_HOST}/image.png)`,
+        }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
         {/* <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div> */}
