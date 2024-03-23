@@ -1,3 +1,5 @@
+import webpack from "webpack";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // prevent double render on dev mode, which causes 2 frames to exist
@@ -18,6 +20,11 @@ const nextConfig = {
     if (!isServer) {
       config.resolve.fallback.fs = false;
     }
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        "process.env.FLUENTFFMPEG_COV": false,
+      })
+    );
     return config;
   },
 };
