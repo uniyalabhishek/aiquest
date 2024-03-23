@@ -40,34 +40,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   bufferStream.on("data", (chunk: Buffer) => {
     allChunks.push(chunk);
   });
+
   ffmpeg.setFfmpegPath(ffmpegPath);
   const command = ffmpeg();
   localImages.forEach((image: string) => {
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
   });
   const outputPath = path.join(tempDir, `${time}-video.mp4`);
-  command
-    .fps(1)
-    .on("start", function (commandLine: any) {
-      console.log(`Spawned FFmpeg with command: ${commandLine}`);
-    })
-    .on("progress", function (progress) {
-      console.log("Processing: " + progress.percent + "% done");
-    })
-    .on("error", function (err: any) {
-      console.log(`An error occurred: ${err.message}`);
-    })
-    .on("end", async function () {
-      console.log("Video has been created");
-      fs.unlink(outputPath, (err: Error) => {
-        if (err) console.error("Error removing temporary file:", err);
-      });
-      for (let i = 0; i < localImages.length; i++) {
-        fs.unlink(localImages[i], (err: Error) => {
+  await new Promise((resolve, reject) => {
+    command
+      .fps(1)
+      .on("start", function (commandLine: any) {
+        console.log(`Spawned FFmpeg with command: ${commandLine}`);
+      })
+      .on("progress", function (progress) {
+        console.log("Processing: " + progress.percent + "% done");
+      })
+      .on("error", function (err: any) {
+        console.log(`An error occurred: ${err.message}`);
+      })
+      .on("end", async function () {
+        console.log("Video has been created");
+        fs.unlink(outputPath, (err: Error) => {
           if (err) console.error("Error removing temporary file:", err);
         });
-      }
-    })
-    .save(outputPath);
+        for (let i = 0; i < localImages.length; i++) {
+          fs.unlink(localImages[i], (err: Error) => {
+            if (err) console.error("Error removing temporary file:", err);
+          });
+        }
+        resolve(null);
+      })
+      .save(outputPath);
+  });
   res.status(200).json({ status: "success" });
 }
