@@ -49,9 +49,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
   });
   const outputPath = path.join(tempDir, `${time}-video.mp4`);
+  const filterComplex =
+    localImages.map((_, index) => `[${index}:v]`).join("") + `concat=n=${localImages.length}:v=1:a=0[v]`;
+
   await new Promise((resolve, reject) => {
     command
-      .fps(1)
+      .complexFilter(filterComplex, "v")
+      .outputOptions("-vsync vfr")
       .on("start", function (commandLine: any) {
         console.log(`Spawned FFmpeg with command: ${commandLine}`);
       })
