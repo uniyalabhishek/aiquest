@@ -3,41 +3,21 @@ import { Button } from "frames.js/next";
 import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 
-const totalPages = 5;
-
 const frames = createFrames({
   basePath: "/frames",
 });
 
 const handleRequest = frames(async (ctx) => {
-  const action = ctx.searchParams.action;
-  console.log(process.env.OPENAI_API_KEY);
-  console.log(ctx?.message?.inputText);
+  const sessionKey = ctx.searchParams.sessionKey || "";
+  console.log("sessionKey", sessionKey);
+  console.log("process.env.OPENAI_API_KEY", process.env.OPENAI_API_KEY);
+  console.log("ctx?.message?.inputText", ctx?.message?.inputText);
+  if (sessionKey) {
+    await kv.set(sessionKey, "test");
+    const sessionData = await kv.get("test");
+    console.log("sessionData", sessionData);
+  }
 
-  const key = ctx.searchParams.pageIndex ? ctx.searchParams.pageIndex : "mock-session-key";
-  console.log(ctx);
-
-  await kv.set("test", "test");
-  const session = await kv.get("test");
-  console.log(session);
-
-  // if (ctx.message?.transactionId) {
-  //   return {
-  //     image: (
-  //       <div tw="bg-purple-800 text-white w-full h-full justify-center items-center flex">
-  //         Transaction submitted! {ctx.message.transactionId}
-  //       </div>
-  //     ),
-  //     imageOptions: {
-  //       aspectRatio: "1:1",
-  //     },
-  //     buttons: [
-  //       <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
-  //         View on block explorer
-  //       </Button>,
-  //     ],
-  //   };
-  // }
   const isEnded = false;
   const isGenerated = false;
 
@@ -90,15 +70,19 @@ const handleRequest = frames(async (ctx) => {
     };
   }
 
-  if (!ctx.pressedButton) {
-    return {
-      image: <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">AI Quest</div>,
-      imageOptions: {
-        aspectRatio: "1.91:1",
-      },
-      buttons: [<Button action="post">Start</Button>],
-    };
-  }
+  const newSessionKey = "sessionKey";
+
+  return {
+    image: <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">AI Quest</div>,
+    imageOptions: {
+      aspectRatio: "1.91:1",
+    },
+    buttons: [
+      <Button action="post" target={{ query: { sessionKey: newSessionKey } }}>
+        Start
+      </Button>,
+    ],
+  };
 });
 
 export const GET = handleRequest;
