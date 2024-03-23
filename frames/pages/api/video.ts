@@ -3,12 +3,18 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { kv } from "@vercel/kv";
 
 import ffmpeg from "fluent-ffmpeg";
+
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
+
 const fs = require("fs");
 const util = require("util");
 const os = require("os");
 const path = require("path");
 const stream = require("stream");
 const writeFileAsync = util.promisify(fs.writeFile);
+
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 
 const duration = 2;
 
@@ -37,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   bufferStream.on("data", (chunk: Buffer) => {
     allChunks.push(chunk);
   });
+  ffmpeg.setFfmpegPath(ffmpegPath);
   const command = ffmpeg();
   localImages.forEach((image: string) => {
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
@@ -55,7 +62,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
     .on("end", async function () {
       console.log("Video has been created");
+      fs.unlink(outputPath, (err: Error) => {
+        if (err) console.error("Error removing temporary file:", err);
+      });
+      for (let i = 0; i < localImages.length; i++) {
+        fs.unlink(localImages[i], (err: Error) => {
+          if (err) console.error("Error removing temporary file:", err);
+        });
+      }
     })
     .save(outputPath);
-  res.status(500).json({ ok: "ok" });
+  res.status(200).json({ status: "success" });
 }
