@@ -18,10 +18,7 @@ const handleRequest = frames(async (ctx) => {
         aspectRatio: "1:1",
       },
       buttons: [
-        <Button
-          action="link"
-          target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}
-        >
+        <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
           View on block explorer
         </Button>,
       ],
@@ -29,11 +26,7 @@ const handleRequest = frames(async (ctx) => {
   }
 
   return {
-    image: (
-      <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">
-        Rent farcaster storage
-      </div>
-    ),
+    image: <div tw="bg-purple-800 text-white w-full h-full justify-center items-center">Rent farcaster storage</div>,
     imageOptions: {
       aspectRatio: "1:1",
     },
