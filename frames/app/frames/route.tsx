@@ -2,7 +2,6 @@
 import fs from "fs";
 import path from "path";
 import { Button } from "frames.js/next";
-import { FrameImage } from "frames.js/next/server";
 import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 import OpenAI from "openai";
@@ -17,7 +16,7 @@ const openai = new OpenAI({
 });
 
 const bitcell = fs.readFileSync(path.join(process.cwd(), "/public/bitcell_memesbruh03.ttf"));
-const fonts = [
+const defaultFonts = [
   {
     name: "Bitcell",
     data: bitcell,
@@ -25,14 +24,12 @@ const fonts = [
     style: "normal",
   },
 ];
-const aspectRatio = "1:1";
-const imageOptions = {
-  aspectRatio,
-  fonts,
+const defaultAspectRatio = "1:1";
+const defaultImageOptions = {
+  aspectRatio: defaultAspectRatio,
+  fonts: defaultFonts,
 } as any;
 
-// const vt323 = VT323({ subsets: ["latin"], weight: "400" });
-// className={vt323.className}
 const handleRequest = frames(async (ctx) => {
   const sessionKey = ctx.searchParams.sessionKey || "";
   console.log("sessionKey", sessionKey);
@@ -69,7 +66,6 @@ const handleRequest = frames(async (ctx) => {
   }
 
   const isEnded = false;
-  const isGenerated = false;
 
   if (ctx.message?.transactionId) {
     return {
@@ -78,7 +74,7 @@ const handleRequest = frames(async (ctx) => {
           Transaction submitted! {ctx.message.transactionId}
         </div>
       ),
-      imageOptions,
+      imageOptions: defaultImageOptions,
       buttons: [
         <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
           View on block explorer
@@ -87,27 +83,15 @@ const handleRequest = frames(async (ctx) => {
     };
   }
 
-  if (ctx.pressedButton && isEnded && isGenerated) {
+  if (ctx.pressedButton && isEnded) {
     return {
       image: (
         <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center">
           Generated
         </div>
       ),
-      imageOptions,
+      imageOptions: defaultImageOptions,
       buttons: [<Button action="post">Mint</Button>],
-    };
-  }
-
-  if (ctx.pressedButton && isEnded && !isGenerated) {
-    return {
-      image: (
-        <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full">
-          Ended
-        </div>
-      ),
-      imageOptions,
-      buttons: [<Button action="post">Generate</Button>],
     };
   }
 
@@ -118,28 +102,16 @@ const handleRequest = frames(async (ctx) => {
           style={{ fontFamily: "Bitcell", fontSize: 24, backgroundImage: `url(${imageUrl})` }}
           tw="flex flex-col bg-black text-white w-full h-full"
         >
-          <p tw="p-2 bg-gray-800 bg-opacity-75 mt-[-0px]">{responseText}</p>
+          <p tw="p-2 bg-gray-800 bg-opacity-75">{responseText}</p>
         </div>
       ),
-      imageOptions: {
-        width: "256",
-        height: "256",
-        aspectRatio: "1:1",
-        fonts: [
-          {
-            name: "Bitcell",
-            data: bitcell,
-            weight: 400,
-            style: "normal",
-          },
-        ],
-        // backgroundImage: imageUrl,
-      },
+      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
       textInput: "What do you do?",
       buttons: [
         <Button action="post" target={{ query: { sessionKey } }}>
           Next
         </Button>,
+        <Button action="post">End</Button>,
       ],
     };
   }
@@ -156,7 +128,7 @@ const handleRequest = frames(async (ctx) => {
         AI Quest
       </div>
     ),
-    imageOptions,
+    imageOptions: defaultImageOptions,
     buttons: [
       <Button action="post" target={{ query: { sessionKey: newSessionKey } }}>
         Start
