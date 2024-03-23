@@ -71,7 +71,7 @@ const handleRequest = frames(async (ctx) => {
     });
   }
 
-  let videoUrl = "test";
+  let videoUrl = "";
   if (action === "checkVideo") {
     const sessionData: any = await kv.get(sessionKey);
     if (sessionData && sessionData.videoUrl) {
