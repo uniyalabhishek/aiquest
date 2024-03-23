@@ -1,5 +1,5 @@
 import {
-  FrameButton,
+  FrameButton as _FrameButton,
   FrameContainer,
   FrameImage,
   FrameInput,
@@ -16,6 +16,9 @@ import { DEFAULT_DEBUGGER_HUB_URL, createDebugUrl } from "./debug";
 type State = {
   messages: string[];
 };
+
+// to remove build issue for hackathon
+const FrameButton = _FrameButton as any;
 
 const initialState: State = { messages: [] };
 
