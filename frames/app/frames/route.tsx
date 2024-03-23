@@ -38,7 +38,7 @@ const handleRequest = frames(async (ctx) => {
   const index = Number(ctx.searchParams.index || 0);
   const inputText = ctx?.message?.inputText;
 
-  if (action == "start" || action === "processAi") {
+  if (action == "start" || action === "processAI") {
     fetch(new URL("/ai", process.env.NEXT_PUBLIC_HOST).toString(), {
       method: "POST",
       headers: {
@@ -58,27 +58,82 @@ const handleRequest = frames(async (ctx) => {
     }
   }
 
-  if (action === "end") {
-    console.log("end");
+  if (action === "processVideo") {
+    fetch(new URL("/video", process.env.NEXT_PUBLIC_HOST).toString(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ sessionKey }),
+    });
   }
+
+  let videoUrl = "";
+  if (action === "checkVideo") {
+    const sessionData: any = await kv.get(sessionKey);
+    if (sessionData && sessionData.videoUrl) {
+      videoUrl = sessionData.videoUrl;
+    }
+  }
+  console.log("videoUrl", videoUrl);
 
   // const isEnded = false;
 
-  // if (ctx.message?.transactionId) {
-  //   return {
-  //     image: (
-  //       <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center flex">
-  //         Transaction submitted! {ctx.message.transactionId}
-  //       </div>
-  //     ),
-  //     imageOptions: defaultImageOptions,
-  //     buttons: [
-  //       <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
-  //         View on block explorer
-  //       </Button>,
-  //     ],
-  //   };
-  // }
+  if (ctx.message?.transactionId) {
+    return {
+      image: (
+        <div style={{ fontFamily: "Bitcell" }} tw="bg-black text-white w-full h-full justify-center items-center flex">
+          Transaction submitted! {ctx.message.transactionId}
+        </div>
+      ),
+      imageOptions: defaultImageOptions,
+      buttons: [
+        <Button action="link" target={`https://www.onceupon.gg/tx/${ctx.message.transactionId}`}>
+          View on block explorer
+        </Button>,
+      ],
+    };
+  }
+
+  if (videoUrl) {
+    return {
+      image: (
+        <div
+          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          tw={`flex bg-black text-white w-full h-full justify-center items-center`}
+        >
+          <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Video created</div>
+        </div>
+      ),
+      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      buttons: [
+        <Button action="post" target={{ query: { sessionKey, action: "mint", index } }}>
+          Mint NFT
+        </Button>,
+      ],
+      headers: defaultHeaders,
+    };
+  }
+
+  if (action == "processVideo" || action == "checkVideo") {
+    return {
+      image: (
+        <div
+          style={{ fontFamily: "Bitcell", fontSize: 20, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
+          tw={`flex bg-black text-white w-full h-full justify-center items-center`}
+        >
+          <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">Processing...</div>
+        </div>
+      ),
+      imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
+      buttons: [
+        <Button action="post" target={{ query: { sessionKey, action: "checkVideo" } }}>
+          Check status
+        </Button>,
+      ],
+      headers: defaultHeaders,
+    };
+  }
 
   if (imageUrl && responseText) {
     return {
@@ -93,10 +148,10 @@ const handleRequest = frames(async (ctx) => {
       imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
       textInput: "What do you do?",
       buttons: [
-        <Button action="post" target={{ query: { sessionKey, action: "end" } }}>
+        <Button action="post" target={{ query: { sessionKey, action: "processVideo" } }}>
           End
         </Button>,
-        <Button action="post" target={{ query: { sessionKey, action: "processAi", index: index + 1 } }}>
+        <Button action="post" target={{ query: { sessionKey, action: "processAI", index: index + 1 } }}>
           Next
         </Button>,
       ],
@@ -104,7 +159,7 @@ const handleRequest = frames(async (ctx) => {
     };
   }
 
-  if (sessionKey) {
+  if (action == "start" || action == "processAI" || action == "checkAI") {
     return {
       image: (
         <div
