@@ -6,6 +6,9 @@ import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 import OpenAI from "openai";
 import { originalPrompt } from "../data";
+import { getFrameMessage } from "frames.js";
+import { getPreviousFrame } from "frames.js/next/server";
+import { DEFAULT_DEBUGGER_HUB_URL } from "../debug";
 
 const frames = createFrames({
   basePath: "/frames",
@@ -32,6 +35,10 @@ const defaultImageOptions = {
 
 const handleRequest = frames(async (ctx) => {
   console.log(ctx);
+  // const frameMessage = await getFrameMessage(ctx.request as, {
+  //   hubHttpUrl: DEFAULT_DEBUGGER_HUB_URL,
+  // });
+  // console.log(frameMessage);
 
   const action = ctx.searchParams.action || "";
   const sessionKey = ctx.searchParams.sessionKey || "";
@@ -133,7 +140,9 @@ const handleRequest = frames(async (ctx) => {
         style={{ fontFamily: "Bitcell", fontSize: 40, backgroundImage: `url(${"http:/localhost:3000/image.png"})` }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
-        <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div>
+        <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">
+          The current time is {new Date().toLocaleString()}
+        </div>
       </div>
     ),
     imageOptions: { ...defaultImageOptions, width: "256", height: "256" },
@@ -142,6 +151,9 @@ const handleRequest = frames(async (ctx) => {
         Start
       </Button>,
     ],
+    headers: {
+      "Cache-Control": "max-age=0",
+    },
   };
 });
 
