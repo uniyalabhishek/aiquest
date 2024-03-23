@@ -77,8 +77,6 @@ const handleRequest = frames(async (ctx) => {
   }
   console.log("videoUrl", videoUrl);
 
-  // const isEnded = false;
-
   if (ctx.message?.transactionId) {
     return {
       image: (

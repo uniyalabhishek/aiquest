@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { kv } from "@vercel/kv";
 
 import ffmpeg from "fluent-ffmpeg";
-
 const fs = require("fs");
 const util = require("util");
 const os = require("os");
@@ -10,30 +9,29 @@ const path = require("path");
 const stream = require("stream");
 const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
-// const writeFileAsync = util.promisify(fs.writeFile);
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 
 import { Livepeer } from "livepeer";
 const livepeer = new Livepeer({ apiKey: process.env.LIVEPEER_API_KEY });
 
-import { NFTStorage, File, Blob } from "nft.storage";
+import { NFTStorage, Blob } from "nft.storage";
 const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN || "" });
 
 const duration = 2;
-const images = ["https://placehold.jp/500x500.png", "https://placehold.jp/500x500.png"];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const body = await req.body;
   const sessionKey = body.sessionKey;
-  //   const sessionData: any = await kv.get(sessionKey);
+  const sessionData: any = await kv.get(sessionKey);
+
   const tempDir = os.tmpdir();
   const localImages: string[] = [];
   const time = Date.now();
-  for (let i = 0; i < images.length; i++) {
+  for (let i = 0; i < sessionData.imageUrls.length; i++) {
     const fileName = `${time}-${i}.png`;
     const tempFilePath = path.join(tempDir, fileName);
-    console.log(images[i]);
-    const response = await fetch(images[i] as string);
+    console.log(sessionData.imageUrls[i]);
+    const response = await fetch(sessionData.imageUrls[i] as string);
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     await writeFileAsync(tempFilePath, buffer);
@@ -79,6 +77,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (err) console.error("Error removing temporary file:", err);
           });
         }
+        const data = { ...sessionData, videoUrl: `ipfs://${cid}` };
+        await kv.set(sessionKey, JSON.stringify(data));
         resolve(null);
       })
       .save(outputPath);
