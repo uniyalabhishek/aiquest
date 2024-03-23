@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-
 import { kv } from "@vercel/kv";
 
 import ffmpeg from "fluent-ffmpeg";
@@ -9,12 +8,18 @@ const util = require("util");
 const os = require("os");
 const path = require("path");
 const stream = require("stream");
+const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
-
+// const writeFileAsync = util.promisify(fs.writeFile);
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 
-const duration = 2;
+import { Livepeer } from "livepeer";
+const livepeer = new Livepeer({ apiKey: process.env.LIVEPEER_API_KEY });
 
+import { NFTStorage, File, Blob } from "nft.storage";
+const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN || "" });
+
+const duration = 2;
 const images = ["https://placehold.jp/500x500.png", "https://placehold.jp/500x500.png"];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -40,7 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   bufferStream.on("data", (chunk: Buffer) => {
     allChunks.push(chunk);
   });
-
   ffmpeg.setFfmpegPath(ffmpegPath);
   const command = ffmpeg();
   localImages.forEach((image: string) => {
@@ -53,14 +57,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .on("start", function (commandLine: any) {
         console.log(`Spawned FFmpeg with command: ${commandLine}`);
       })
-      .on("progress", function (progress) {
-        console.log("Processing: " + progress.percent + "% done");
-      })
       .on("error", function (err: any) {
         console.log(`An error occurred: ${err.message}`);
       })
       .on("end", async function () {
         console.log("Video has been created");
+        const buffer = await readFileAsync(outputPath);
+        const file = new File([buffer], "video.mp4", { type: "video/mp4" });
+        const cid = await client.storeDirectory([file]);
+        console.log(cid);
+        const res = await livepeer.asset
+          .createViaURL({ name: "video", url: `ipfs://${cid}/video.mp4` })
+          .catch((error) => {
+            console.error("Error requesting asset upload:", error);
+          });
+        console.log(res);
         fs.unlink(outputPath, (err: Error) => {
           if (err) console.error("Error removing temporary file:", err);
         });
