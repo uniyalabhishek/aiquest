@@ -14,11 +14,21 @@ https://youtu.be/-BZMiEdXBlo
 
 ## Description
 
-This project fuses a text-based RPG with blockchain technology, utilizing AI for an enhanced experience.
+### Overview:
 
-Introducing a novel Farcaster frame, this platform offers an engaging and innovative social gaming experience.
+AI Quest merges text-based RPGs with blockchain and AI to create unique experiences. Your social and blockchain activities directly influence the game's story and environment.
 
-Experience a classic dark fantasy RPG where users progress interactively through dynamic scenarios, ultimately creating Video NFTs from their unique stories.
+### Features:
+
+- **Dynamic Adventure:** Your actions and interactions shape a unique dark fantasy world, offering a new journey every time.
+- **Video NFTs:** Transform your gameplay stories into Video NFTs, capturing memorable moments.
+- **Social Gaming:** The game mirrors your online life, changing scenarios and challenges based on your digital footprint.
+
+### Technical Highlights:
+
+Open Standards: Uses Frames.js for seamless integration within the open frame ecosystem.
+Data Analysis: Leverages Airstack and Pinata for in-depth interaction tracking.
+Creative Content: Employs Livepeer and Base Sepolia for cutting-edge video creation and NFT minting.
 
 ## How It Works
 
@@ -59,6 +69,8 @@ This is the code where this technology is applied.
 
 https://github.com/taijusanagi/aiquest/blob/main/frames/pages/api/ai.ts#L55
 
+Onchain data & social game is the future.
+
 ### Pinata Analytics
 
 Utilizes Pinata analytics to send and receive data regarding user interactions with the frame. The data is employed to assess difficulty levels. The difficulty increases with more user interactions within a 30-minute timeframe.
@@ -66,6 +78,8 @@ Utilizes Pinata analytics to send and receive data regarding user interactions w
 This is the code where this technology is applied.
 
 https://github.com/taijusanagi/aiquest/blob/main/frames/pages/api/ai.ts#L35
+
+Next time, I aim to explore the Pinata Frame SDK more comprehensively, not just its analytics features.
 
 ### Livepeer
 
@@ -79,6 +93,8 @@ This is the code where this technology is applied.
 
 https://github.com/taijusanagi/aiquest/blob/main/frames/pages/api/video.ts
 
+I find Video NFTs very interesting and want to delve deeper into creating more of them.
+
 ### Base
 
 Utilizes Base Sepolia for NFT minting with generated content. Base is currently thriving and is believed to be the best place to create games based on on-chain activity.
@@ -89,10 +105,18 @@ https://base-sepolia.blockscout.com/tx/0x3a099a29d1f5cf4bdd83d25129300342bd93301
 
 This is the code where this technology is applied.
 
-https://github.com/taijusanagi/aiquest/blob/main/frames/app/txdata/route.ts#L45
+https://github.com/taijusanagi/aiquest/blob/main/frames/app/txdata/route.ts#
+
+Base and Farcaster have emerged as the default choices for Web3 social platforms.
 
 ### XMTP
 
 AI Quest is compatible with Open Frame Standard.
 
 https://github.com/open-frames/awesome-open-frames/pull/30
+
+This is the code where this technology is applied.
+
+https://github.com/taijusanagi/aiquest/blob/main/frames/app/frames/route.tsx#L13
+
+Experienced something novel.
