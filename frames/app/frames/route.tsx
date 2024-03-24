@@ -8,24 +8,13 @@ import { kv } from "@vercel/kv";
 import { openframes } from "frames.js/middleware";
 import { getXmtpFrameMessage, isXmtpFrameActionPayload } from "frames.js/xmtp";
 
-export const acceptedProtocols = [
-  {
-    id: "xmtp",
-    version: "vNext",
-  },
-  {
-    id: "farcaster",
-    version: "vNext",
-  },
-] as any;
-
 const frames = createFrames({
   basePath: "/frames",
   middleware: [
     openframes({
       clientProtocol: {
         id: "xmtp",
-        version: "vNext",
+        version: "2024-02-09",
       },
       handler: {
         isValidPayload: (body: JSON) => isXmtpFrameActionPayload(body),
@@ -133,7 +122,6 @@ const handleRequest = frames(async (ctx) => {
         </Button>,
       ],
       headers: defaultHeaders,
-      accepts: acceptedProtocols,
     };
   }
 
@@ -158,7 +146,6 @@ const handleRequest = frames(async (ctx) => {
         </Button>,
       ],
       headers: defaultHeaders,
-      accepts: acceptedProtocols,
     };
   }
 
@@ -183,7 +170,6 @@ const handleRequest = frames(async (ctx) => {
         </Button>,
       ],
       headers: defaultHeaders,
-      accepts: acceptedProtocols,
     };
   }
 
@@ -208,7 +194,6 @@ const handleRequest = frames(async (ctx) => {
         </Button>,
       ],
       headers: defaultHeaders,
-      accepts: acceptedProtocols,
     };
   }
 
@@ -233,7 +218,6 @@ const handleRequest = frames(async (ctx) => {
         </Button>,
       ],
       headers: defaultHeaders,
-      accepts: acceptedProtocols,
     };
   }
 
@@ -258,7 +242,6 @@ const handleRequest = frames(async (ctx) => {
       </Button>,
     ],
     headers: defaultHeaders,
-    accepts: acceptedProtocols,
   };
 });
 
