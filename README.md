@@ -1,6 +1,6 @@
 # AI Quest
 
-AI Quest is a text-based RPG game crafted using the innovative Farcaster framework. Immerse yourself in a unique gaming experience where every adventure is different and dictated by your choices.
+AI Quest is a text-based RPG game built on the Farcaster framework. The adventure varies depending on both on-chain and Farcaster activity.
 
 ## Technical Details
 
