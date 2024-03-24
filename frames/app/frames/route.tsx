@@ -231,7 +231,6 @@ const handleRequest = frames(async (ctx) => {
         }}
         tw={`flex bg-black text-white w-full h-full justify-center items-center`}
       >
-        {/* <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div> */}
         <div tw="flex p-2 bg-gray-800 bg-opacity-75 w-full justify-center items-center">AI Quest</div>
       </div>
     ),
