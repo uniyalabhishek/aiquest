@@ -2,6 +2,9 @@ import webpack from "webpack";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverMinification: false,
+  },
   // prevent double render on dev mode, which causes 2 frames to exist
   reactStrictMode: false,
   images: {
