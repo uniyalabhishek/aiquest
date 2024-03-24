@@ -30,9 +30,9 @@ const defaultHeaders = {
 };
 
 const handleRequest = frames(async (ctx) => {
+  const requesterFid = ctx?.message?.requesterFid;
   const action = ctx.searchParams.action || "";
   let sessionKey = ctx.searchParams.sessionKey || "";
-
   if (!sessionKey && action == "start") {
     const newSessionKey = crypto.randomUUID();
     console.log("newSessionKey", newSessionKey);
@@ -47,7 +47,7 @@ const handleRequest = frames(async (ctx) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ sessionKey, inputText }),
+      body: JSON.stringify({ requesterFid, sessionKey, inputText }),
     });
   }
 

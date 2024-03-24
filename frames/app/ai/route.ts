@@ -2,21 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 
 import OpenAI from "openai";
-import { originalPrompt } from "../data";
+import { createPrompt } from "../data";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+import { init, getFarcasterUserDetails } from "@airstack/frames";
+init(process.env.AIRSTACK_API_KEY || "");
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const requesterFid = body.requesterFid;
   const sessionKey = body.sessionKey;
   const inputText = body.inputText;
+
+  const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
+  const followerCount = airstackData?.followerCount || 0;
+  const followingCount = airstackData?.followingCount || 0;
+  const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
+  const basePrompt = createPrompt(difficultyLevel);
   const messages: any = [];
   const imageUrls: any = [];
   const sessionData: any = await kv.get(sessionKey);
   if (!sessionData) {
-    messages.push({ role: "system", content: originalPrompt });
+    messages.push({ role: "system", content: basePrompt });
   } else {
     messages.push(...(sessionData.messages as any));
     imageUrls.push(...(sessionData.imageUrls as any));
