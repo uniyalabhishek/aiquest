@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const frame_id = "ai-quest";
   const custom_id = requesterFid;
   if (process.env.NODE_ENV === "production") {
+    console.log(frame_id, frame_data, custom_id);
     await fdk.sendAnalytics(frame_id, frame_data, custom_id);
   }
   const messages: any = [];
