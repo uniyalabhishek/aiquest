@@ -17,13 +17,12 @@ const livepeer = new Livepeer({ apiKey: process.env.LIVEPEER_API_KEY });
 import { NFTStorage, Blob } from "nft.storage";
 const client = new NFTStorage({ token: process.env.NFT_STORAGE_TOKEN || "" });
 
-const duration = 2;
+const duration = 4;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const body = await req.body;
   const sessionKey = body.sessionKey;
   const sessionData: any = await kv.get(sessionKey);
-
   const tempDir = os.tmpdir();
   const localImages: string[] = [];
   const time = Date.now();
@@ -48,11 +47,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   localImages.forEach((image: string) => {
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
   });
-  command.addInput(process.cwd() + "/bgm.mp3");
+  command.addInput(path.join(process.cwd(), "public", "bgm.mp3"));
   const totalDuration = localImages.length * duration;
   const outputPath = path.join(tempDir, `${time}-video.mp4`);
   const filterComplex =
-    localImages.map((_, index) => `[${index}:v]`).join("") + `concat=n=${localImages.length}:v=1:a=1[v][a]`;
+    localImages.map((_, index) => `[${index}:v]`).join("") +
+    `concat=n=${localImages.length}:v=1:a=0[v];[${localImages.length}:a]asetpts=PTS-STARTPTS[a]`;
 
   await new Promise((resolve, reject) => {
     command
