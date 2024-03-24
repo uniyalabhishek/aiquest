@@ -26,7 +26,7 @@ export default async function Home() {
         </div>
         <div className="text-center w-full max-w-6xl mb-48">
           <p className="text-white text-5xl mb-12">Available on Warpcast</p>
-          <img src="./screenshot-1.png" className="w-full mx-auto mb-8" alt="Large Screenshot" />
+          <img src="./screenshot.png" className="w-full mx-auto mb-8" alt="Large Screenshot" />
           <a
             href="https://warpcast.com/taijusanagi/0xdd4f8bef"
             target="_blank"
