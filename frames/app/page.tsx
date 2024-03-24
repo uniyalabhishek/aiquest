@@ -28,7 +28,7 @@ export default async function Home() {
           <p className="text-white text-5xl mb-12">Available on Warpcast</p>
           <img src="./screenshot.png" className="w-full mx-auto mb-8" alt="Large Screenshot" />
           <a
-            href="https://warpcast.com/taijusanagi/0xdd4f8bef"
+            href="https://warpcast.com/taijusanagi/0x641f8146"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-purple-600 text-white w-80 font-bold py-2 px-4 rounded hover:bg-purple-700 transition duration-300 ease-in-out text-lg"
