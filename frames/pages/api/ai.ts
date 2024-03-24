@@ -56,6 +56,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const followerCount = airstackData?.followerCount || 0;
     const followingCount = airstackData?.followingCount || 0;
     const type = (followerCount + followingCount) % 3;
+    console.log("type", type);
+    console.log("difficultyLevel", difficultyLevel);
     const basePrompt = createPrompt(type, difficultyLevel);
     messages.push({ role: "system", content: basePrompt });
   } else {
