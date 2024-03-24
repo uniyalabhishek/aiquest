@@ -36,10 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await fdk.sendAnalytics(frame_id, ctxRequest, custom_id);
   }
   if (!sessionData) {
+    let difficultyLevel = 1;
     if (process.env.NODE_ENV === "production") {
       const now = moment();
-      const oneDayBefore = moment().subtract(1, "days");
-      const start_date = oneDayBefore.format("YYYY-MM-DD HH:mm:ss");
+      const thirtyMinutesBefore = moment().subtract(30, "minutes");
+      const start_date = thirtyMinutesBefore.format("YYYY-MM-DD HH:mm:ss");
       const end_date = now.format("YYYY-MM-DD HH:mm:ss");
       const url = `https://api.pinata.cloud/farcaster/frames/interactions?frame_id=${frame_id}&custom_id=${custom_id}&start_date=${start_date}&end_date=${end_date}`;
       const requestOptions = {
@@ -49,15 +50,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       };
       const analytics = await fetch(url, requestOptions).then((response) => response.json());
-      console.log(analytics);
+      difficultyLevel = Math.max(analytics.total_interactions, 5);
     }
     const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
     const followerCount = airstackData?.followerCount || 0;
     const followingCount = airstackData?.followingCount || 0;
-    const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
-    const basePrompt = createPrompt(difficultyLevel);
-    // only fetch analytics in production environment because it uses debugger validator in local
-
+    const type = (followerCount + followingCount) % 3;
+    const basePrompt = createPrompt(type, difficultyLevel);
     messages.push({ role: "system", content: basePrompt });
   } else {
     messages.push(...(sessionData.messages as any));
