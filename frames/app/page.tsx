@@ -37,7 +37,7 @@ export default async function Home() {
           </a>
         </div>
         <div className="text-center w-full max-w-6xl mb-48">
-          <p className="text-white text-5xl mb-12">Technical Detail</p>
+          <p className="text-white text-5xl mb-12">How It Works</p>
           <img src="./technical-detail.png" className="w-full mx-auto mb-8" alt="Large Screenshot" />
           <a
             href="https://github.com/taijusanagi/aiquest"
