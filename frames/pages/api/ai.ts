@@ -25,24 +25,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const inputText = body.inputText;
   const ctxRequest = body.ctxRequest;
 
-  const custom_id = requesterFid.toString();
-  // for local development, skip this process because it uses mock validator
   if (process.env.NODE_ENV === "production") {
-    // Note: currently nextjs api timeout is 10 seconds, so skip this process to avoid timeout
-    // const { isValid, message } = await fdk.validateFrameMessage(ctxRequest);
-    // console.log("isValid", isValid);
-    const frame_id = "ai-quest";
-    fdk.sendAnalytics(frame_id, ctxRequest, custom_id).catch((e) => console.log(e));
+    const { isValid } = await fdk.validateFrameMessage(ctxRequest);
+    console.log("isValid", isValid);
+    if (isValid) {
+      const frame_id = "ai-quest";
+      const custom_id = requesterFid.toString();
+      fdk.sendAnalytics(frame_id, ctxRequest, custom_id).catch((e) => console.log(e));
+    }
   }
   const messages: any = [];
   const imageUrls: any = [];
   const sessionData: any = await kv.get(sessionKey);
   if (!sessionData) {
-    // const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
-    // const followerCount = airstackData?.followerCount || 0;
-    // const followingCount = airstackData?.followingCount || 0;
-    // const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
-    const difficultyLevel = 1;
+    const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
+    const followerCount = airstackData?.followerCount || 0;
+    const followingCount = airstackData?.followingCount || 0;
+    const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
     const basePrompt = createPrompt(difficultyLevel);
     messages.push({ role: "system", content: basePrompt });
   } else {
