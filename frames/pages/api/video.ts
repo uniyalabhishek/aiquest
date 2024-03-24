@@ -48,14 +48,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   localImages.forEach((image: string) => {
     command.input(image).inputOptions(["-loop 1", `-t ${duration}`]);
   });
+  command.addInput(process.cwd() + "/bgm.mp3");
+  const totalDuration = localImages.length * duration;
   const outputPath = path.join(tempDir, `${time}-video.mp4`);
   const filterComplex =
-    localImages.map((_, index) => `[${index}:v]`).join("") + `concat=n=${localImages.length}:v=1:a=0[v]`;
+    localImages.map((_, index) => `[${index}:v]`).join("") + `concat=n=${localImages.length}:v=1:a=1[v][a]`;
 
   await new Promise((resolve, reject) => {
     command
-      .complexFilter(filterComplex, "v")
-      .outputOptions("-vsync vfr")
+      .complexFilter(filterComplex, ["v", "a"]) // Note this change for including audio stream in the filter
+      .outputOptions(["-vsync vfr", `-t ${totalDuration}`])
       .on("start", function (commandLine: any) {
         console.log(`Spawned FFmpeg with command: ${commandLine}`);
       })

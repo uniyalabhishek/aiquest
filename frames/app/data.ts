@@ -10,7 +10,7 @@ This dungeon difficulty level is ${difficulty} out of 5, the difficulty level is
 
 ## Enemies
 
-In This TPRG, player is in dungeon, there are 3 enemies, and player needs to defeat those enemies to clear the dungeon.
+In This TPRG, player is in dungeon, there are 3 enemies, and player needs to defeat those enemies to clear the dungeon. Enemy only show one by one.
 
 ${getEnemyByType(type)}
 
