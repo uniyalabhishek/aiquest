@@ -38,10 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const imageUrls: any = [];
   const sessionData: any = await kv.get(sessionKey);
   if (!sessionData) {
-    const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
-    const followerCount = airstackData?.followerCount || 0;
-    const followingCount = airstackData?.followingCount || 0;
-    const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
+    // const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
+    // const followerCount = airstackData?.followerCount || 0;
+    // const followingCount = airstackData?.followingCount || 0;
+    // const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
+    const difficultyLevel = 1;
     const basePrompt = createPrompt(difficultyLevel);
     messages.push({ role: "system", content: basePrompt });
   } else {
@@ -49,29 +50,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     imageUrls.push(...(sessionData.imageUrls as any));
   }
   messages.push({ role: "user", content: inputText });
-  openai.chat.completions
-    .create({
-      model: "gpt-3.5-turbo",
-      messages: messages,
-    })
-    .then((chatCompletion) => {
-      const responseText = chatCompletion.choices[0]?.message?.content as string;
-      console.log("responseText", responseText);
-      openai.images
-        .generate({
-          model: "dall-e-2",
-          prompt: `pixel art, detailed senary, dark fantasy, rpg, occupies the majority of the image's space, ${responseText}`,
-          size: "256x256",
-          n: 1,
-        })
-        .then((imageCompletion) => {
-          const imageUrl = imageCompletion.data[0]?.url as string;
-          console.log(imageUrl);
-          messages.push({ role: "assistant", content: responseText });
-          imageUrls.push(imageUrl);
-          const data = { messages, imageUrls };
-          kv.set(sessionKey, JSON.stringify(data));
-        });
-    });
-  res.status(200).json({ status: "requested" });
+  const chatCompletion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: messages,
+  });
+  const responseText = chatCompletion.choices[0]?.message?.content as string;
+  console.log("responseText", responseText);
+  const imageCompletion = await openai.images.generate({
+    model: "dall-e-2",
+    prompt: `pixel art, detailed senary, dark fantasy, rpg, occupies the majority of the image's space, ${responseText}`,
+    size: "256x256",
+    n: 1,
+  });
+  const imageUrl = imageCompletion.data[0]?.url as string;
+  console.log(imageUrl);
+  messages.push({ role: "assistant", content: responseText });
+  imageUrls.push(imageUrl);
+  const data = { messages, imageUrls };
+  await kv.set(sessionKey, JSON.stringify(data));
+  res.status(200).json({ data, status: "success" });
 }
