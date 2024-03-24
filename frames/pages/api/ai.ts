@@ -24,16 +24,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const sessionKey = body.sessionKey;
   const inputText = body.inputText;
   const ctxRequest = body.ctxRequest;
-
-  if (process.env.NODE_ENV === "production") {
-    const { isValid } = await fdk.validateFrameMessage(ctxRequest);
-    console.log("isValid", isValid);
-    if (isValid) {
-      const frame_id = "ai-quest";
-      const custom_id = requesterFid.toString();
-      fdk.sendAnalytics(frame_id, ctxRequest, custom_id).catch((e) => console.log(e));
-    }
-  }
+  const frame_id = "ai-quest";
+  const custom_id = requesterFid.toString();
   const messages: any = [];
   const imageUrls: any = [];
   const sessionData: any = await kv.get(sessionKey);
@@ -43,6 +35,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const followingCount = airstackData?.followingCount || 0;
     const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
     const basePrompt = createPrompt(difficultyLevel);
+    if (process.env.NODE_ENV === "production") {
+      const url = `https://api.pinata.cloud/farcaster/frames/interactions?frame_id=${frame_id}&custom_id=${custom_id}`;
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.PINATA_JWT}`,
+        },
+      };
+      const analytics = await fetch(url, requestOptions).then((response) => response.json());
+      console.log(analytics);
+    }
+
     messages.push({ role: "system", content: basePrompt });
   } else {
     messages.push(...(sessionData.messages as any));
@@ -67,5 +71,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   imageUrls.push(imageUrl);
   const data = { messages, imageUrls };
   await kv.set(sessionKey, JSON.stringify(data));
+  if (process.env.NODE_ENV === "production") {
+    await fdk.sendAnalytics(frame_id, ctxRequest, custom_id);
+  }
   res.status(200).json({ data, status: "success" });
 }
