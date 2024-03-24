@@ -5,8 +5,29 @@ import { Button } from "frames.js/next";
 import { createFrames } from "frames.js/next";
 import { kv } from "@vercel/kv";
 
+import { openframes } from "frames.js/middleware";
+import { getXmtpFrameMessage, isXmtpFrameActionPayload } from "frames.js/xmtp";
+
 const frames = createFrames({
   basePath: "/frames",
+  middleware: [
+    openframes({
+      clientProtocol: {
+        id: "xmtp",
+        version: "2024-02-09",
+      },
+      handler: {
+        isValidPayload: (body: JSON) => isXmtpFrameActionPayload(body),
+        getFrameMessage: async (body: JSON) => {
+          if (!isXmtpFrameActionPayload(body)) {
+            return undefined;
+          }
+          const result = await getXmtpFrameMessage(body);
+          return { ...result };
+        },
+      },
+    }),
+  ],
 });
 
 const bitcell = fs.readFileSync(path.join(process.cwd(), "/public/bitcell_memesbruh03.ttf"));
