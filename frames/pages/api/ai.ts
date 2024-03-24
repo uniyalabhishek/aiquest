@@ -25,14 +25,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const inputText = body.inputText;
   const ctxRequest = body.ctxRequest;
 
-  const custom_id = requesterFid;
+  const custom_id = requesterFid.toString();
   if (process.env.NODE_ENV === "production") {
     console.log(ctxRequest);
-    const { isValid, message } = await fdk.validateFrameMessage(ctxRequest);
-    // todo: validation
-    console.log("isValid", isValid);
-    const frame_id = "test";
-    await fdk.sendAnalytics(frame_id, ctxRequest).catch((e) => console.log(e));
+    // Note: currently nextjs api timeout is 10 seconds, so skip this process to avoid timeout
+    // const { isValid, message } = await fdk.validateFrameMessage(ctxRequest);
+    // console.log("isValid", isValid);
+    const frame_id = "ai-quest";
+    fdk.sendAnalytics(frame_id, ctxRequest, custom_id).catch((e) => console.log(e));
   }
   const messages: any = [];
   const imageUrls: any = [];
