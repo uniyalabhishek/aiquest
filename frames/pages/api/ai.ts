@@ -24,19 +24,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const sessionKey = body.sessionKey;
   const inputText = body.inputText;
   const ctxRequest = body.ctxRequest;
-  // const trustedData = body.trustedData;
-  // const frame_data = {
-  //   untrustedData,
-  //   trustedData,
-  // };
-  console.log(ctxRequest);
   const frame_id = "ai-quest";
   const custom_id = requesterFid;
-  // console.log(frame_id, frame_data, custom_id);
-  const { isValid, message } = await fdk.validateFrameMessage(ctxRequest);
-  console.log(isValid, message);
   if (process.env.NODE_ENV === "production") {
-    // await fdk.sendAnalytics(frame_id, frame_data, custom_id);
+    console.log(ctxRequest);
+    const { isValid, message } = await fdk.validateFrameMessage(ctxRequest);
+    // todo: validation
+    console.log("isValid", isValid);
+    await fdk.sendAnalytics(frame_id, ctxRequest, custom_id);
   }
   const messages: any = [];
   const imageUrls: any = [];
