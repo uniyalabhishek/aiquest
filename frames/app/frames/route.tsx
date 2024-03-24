@@ -42,12 +42,13 @@ const handleRequest = frames(async (ctx) => {
   const inputText = ctx?.message?.inputText;
 
   if (action == "start" || action === "processAI") {
-    fetch(new URL("/ai", process.env.NEXT_PUBLIC_HOST).toString(), {
+    const { untrustedData, trustedData } = await ctx.request.clone().json();
+    fetch(new URL("/api/ai", process.env.NEXT_PUBLIC_HOST).toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ requesterFid, sessionKey, inputText }),
+      body: JSON.stringify({ requesterFid, sessionKey, inputText, untrustedData, trustedData }),
     });
   }
 
