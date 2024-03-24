@@ -18,6 +18,8 @@ const fdk = new PinataFDK({
   pinata_gateway: process.env.GATEWAY_URL as string,
 });
 
+const moment = require("moment");
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const body = req.body;
   const requesterFid = body.requesterFid;
@@ -29,14 +31,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const messages: any = [];
   const imageUrls: any = [];
   const sessionData: any = await kv.get(sessionKey);
+  // only send analytics in production environment because it uses debugger validator in local
+  if (process.env.NODE_ENV === "production") {
+    await fdk.sendAnalytics(frame_id, ctxRequest, custom_id);
+  }
   if (!sessionData) {
-    const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
-    const followerCount = airstackData?.followerCount || 0;
-    const followingCount = airstackData?.followingCount || 0;
-    const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
-    const basePrompt = createPrompt(difficultyLevel);
     if (process.env.NODE_ENV === "production") {
-      const url = `https://api.pinata.cloud/farcaster/frames/interactions?frame_id=${frame_id}&custom_id=${custom_id}`;
+      const now = moment();
+      const oneDayBefore = moment().subtract(1, "days");
+      const start_date = oneDayBefore.format("YYYY-MM-DD HH:mm:ss");
+      const end_date = now.format("YYYY-MM-DD HH:mm:ss");
+      const url = `https://api.pinata.cloud/farcaster/frames/interactions?frame_id=${frame_id}&custom_id=${custom_id}&start_date=${start_date}&end_date=${end_date}`;
       const requestOptions = {
         method: "GET",
         headers: {
@@ -46,6 +51,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const analytics = await fetch(url, requestOptions).then((response) => response.json());
       console.log(analytics);
     }
+    const { data: airstackData } = await getFarcasterUserDetails({ fid: requesterFid });
+    const followerCount = airstackData?.followerCount || 0;
+    const followingCount = airstackData?.followingCount || 0;
+    const difficultyLevel = ((followerCount + followingCount) % 4) + 1;
+    const basePrompt = createPrompt(difficultyLevel);
+    // only fetch analytics in production environment because it uses debugger validator in local
 
     messages.push({ role: "system", content: basePrompt });
   } else {
@@ -71,8 +82,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   imageUrls.push(imageUrl);
   const data = { messages, imageUrls };
   await kv.set(sessionKey, JSON.stringify(data));
-  if (process.env.NODE_ENV === "production") {
-    await fdk.sendAnalytics(frame_id, ctxRequest, custom_id);
-  }
   res.status(200).json({ data, status: "success" });
 }
