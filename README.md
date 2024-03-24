@@ -1,6 +1,6 @@
 # AI Quest
 
-Shape your RPG world & power up social gaming with your onchain activity! AI Quest is a text-based RPG game built on the Farcaster framework. The adventure varies depending on both on-chain and Farcaster activity.
+Craft your own RPG universe and elevate your social gaming experience with your blockchain activities! AI Quest, a text-based RPG built on the Farcaster framework, offers an evolving adventure shaped by your on-chain and Farcaster interactions.
 
 ![banner](./docs/banner.png)
 
@@ -26,9 +26,9 @@ AI Quest merges text-based RPGs with blockchain and AI to create unique experien
 
 ### Technical Highlights:
 
-Open Standards: Uses Frames.js for seamless integration within the open frame ecosystem.
-Data Analysis: Leverages Airstack and Pinata for in-depth interaction tracking.
-Creative Content: Employs Livepeer and Base Sepolia for cutting-edge video creation and NFT minting.
+- **Open Standards:** Uses Frames.js for seamless integration within the open frame ecosystem.
+- **Data Analysis:** Leverages Airstack and Pinata for in-depth interaction tracking.
+- **Creative Content:** Employs Livepeer and Base Sepolia for cutting-edge video creation and NFT minting.
 
 ## How It Works
 
